@@ -20,7 +20,7 @@ func (w *weyl) Int63() int64 {
 }
 
 func (w *weyl) Seed(seed int64) {
-	*w = weyl{s: (uint64(seed) + 0xb5ad4eceda1ce2a9) | 1}
+	*w = weyl{s: (uint64(seed) << 1) + 0xb5ad4eceda1ce2a9}
 }
 
 func NewSource(seed int64) rand.Source {
