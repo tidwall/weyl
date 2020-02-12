@@ -15,6 +15,7 @@ import (
 	"runtime"
 	"testing"
 	"testing/iotest"
+	"time"
 )
 
 const (
@@ -322,14 +323,14 @@ var testSeeds = []int64{1, 1754801282, 1698661970, 1550503961}
 
 // checkSimilarDistribution returns success if the mean and stddev of the
 // two statsResults are similar.
-func (this *statsResults) checkSimilarDistribution(expected *statsResults) error {
-	if !nearEqual(this.mean, expected.mean, expected.closeEnough, expected.maxError) {
-		s := fmt.Sprintf("mean %v != %v (allowed error %v, %v)", this.mean, expected.mean, expected.closeEnough, expected.maxError)
+func (r *statsResults) checkSimilarDistribution(expected *statsResults) error {
+	if !nearEqual(r.mean, expected.mean, expected.closeEnough, expected.maxError) {
+		s := fmt.Sprintf("mean %v != %v (allowed error %v, %v)", r.mean, expected.mean, expected.closeEnough, expected.maxError)
 		fmt.Println(s)
 		return errors.New(s)
 	}
-	if !nearEqual(this.stddev, expected.stddev, 0, expected.maxError) {
-		s := fmt.Sprintf("stddev %v != %v (allowed error %v, %v)", this.stddev, expected.stddev, expected.closeEnough, expected.maxError)
+	if !nearEqual(r.stddev, expected.stddev, 0, expected.maxError) {
+		s := fmt.Sprintf("stddev %v != %v (allowed error %v, %v)", r.stddev, expected.stddev, expected.closeEnough, expected.maxError)
 		fmt.Println(s)
 		return errors.New(s)
 	}
@@ -600,6 +601,19 @@ func TestExpTables(t *testing.T) {
 	}
 	if i := compareFloat32Slices(fe[0:], testFe); i >= 0 {
 		t.Errorf("fe disagrees at index %v; %v != %v", i, fe[i], testFe[i])
+	}
+}
+
+func TestFloat64(t *testing.T) {
+	seed := time.Now().UnixNano()
+	var rng Generator
+	rng.Seed(seed)
+	start := time.Now()
+	for time.Since(start) < time.Millisecond*10 {
+		f := rng.Float64()
+		if f < 0 || f >= 1 {
+			t.Fatalf("out of bound: seed=%d, f=%f", seed, f)
+		}
 	}
 }
 
